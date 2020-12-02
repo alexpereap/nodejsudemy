@@ -1,0 +1,124 @@
+172.30.0.190:7300
+
+echo "[1/5] Fetching from git..."
+echo
+
+cd /var/www/crewsense/Application
+sudo /usr/bin/git pull origin master
+
+echo
+echo -n "[2/5] Setting permissions..."
+
+sudo /bin/chown -R www-data.www-data ./App/Modules
+sudo /bin/chown -R www-data.www-data ./App/Libraries
+sudo /bin/chown -R www-data.www-data ./App/Globals
+sudo /bin/chown -R www-data.www-data ./Client
+sudo /bin/chown -R www-data.www-data ./*.pem
+
+echo " done."
+
+# install composer dependencies
+echo
+echo "[3/5] Running composer install..."
+echo
+sudo /usr/local/bin/composer install --no-dev
+
+# install frontend dependencies
+echo
+echo "[4/5] Running bower install..."
+echo
+sudo /usr/local/bin/bower install --production --allow-root
+
+# Run migrations
+echo
+echo "[5/5] Running migrations..."
+echo
+PHINX_DBHOST=54.214.44.131 PHINX_DBUSER=callback_root PHINX_DBPASS=Viper7398! PHINX_DBNAME=callback_db php vendor/bin/phinx migrate -e production
+
+
+_______________________-
+
+172.30.0.44:7300
+
+echo "[1/5] Fetching from git..."
+echo
+
+cd /var/www/crewsense/Application
+sudo /usr/bin/git pull origin master
+
+echo
+echo -n "[2/5] Setting permissions..."
+
+sudo /bin/chown -R www-data.www-data ./App/Modules
+sudo /bin/chown -R www-data.www-data ./App/Libraries
+sudo /bin/chown -R www-data.www-data ./App/Globals
+sudo /bin/chown -R www-data.www-data ./Client
+sudo /bin/chown -R www-data.www-data ./*.pem
+
+echo " done."
+
+# install composer dependencies
+echo
+echo "[3/5] Running composer install..."
+echo
+sudo /usr/local/bin/composer install --no-dev
+
+# install frontend dependencies
+echo
+echo "[4/5] Running bower install..."
+echo
+sudo /usr/local/bin/bower install --production --allow-root
+
+# Run migrations
+echo
+echo "[5/5] Running migrations..."
+echo
+PHINX_DBHOST=172.30.0.38 PHINX_DBUSER=callback_root PHINX_DBPASS=Viper7398! PHINX_DBNAME=callback_db php vendor/bin/phinx migrate -e production
+
+
+_______________________
+
+172.30.0.45:22
+
+echo "[1/3] Updating code..."
+echo
+
+sudo bash
+cd /root/worker
+/usr/bin/git pull origin master
+
+/usr/bin/php /root/cachetool.phar apc:cache:clear all
+/usr/bin/php /root/cachetool.phar opcache:reset
+
+# install composer dependencies
+echo
+echo "[2/3] Installing dependencies..."
+echo
+/usr/local/bin/composer install --no-dev
+
+echo
+echo "[3/3] Restarting workers..."
+echo
+supervisorctl restart all
+
+
+
+-----
+
+
+echo "[1/3] Updating code..."
+echo
+sudo git -C /root/worker pull origin master
+sudo /usr/bin/php /root/cachetool.phar apc:cache:clear all
+sudo /usr/bin/php /root/cachetool.phar opcache:reset
+
+# install composer dependencies
+echo
+echo "[2/3] Installing dependencies..."
+echo
+sudo /usr/local/bin/composer install --no-dev -d /root/worker
+
+echo
+echo "[3/3] Restarting workers..."
+echo
+sudo supervisorctl restart all
